@@ -4,3 +4,5 @@ astroplan
 astroquery
 matplotlib
 pickle
+subprocess
+datetime
