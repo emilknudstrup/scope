@@ -34,7 +34,7 @@ class Telescope:
 	print_sites()
 	'''
 	
-	def __init__(self,location,Vmag=12.):
+	def __init__(self,location,Vmag=12.,name='Name'):
 		'''Initialize
 		Constructs all the necessary attributes for the telescope object.
 
@@ -47,6 +47,7 @@ class Telescope:
 		'''
 		self.location = location
 		self.Vmag = Vmag
+		self.name = name
 		
 
 	def print_sites(self):
@@ -57,9 +58,12 @@ class Telescope:
 		'''
 		print(EarthLocation.get_site_names())
 
-NOT = Telescope(Observer.at_site('Roque de los Muchachos'),10.5)
-TNG = Telescope(Observer.at_site('Roque de los Muchachos'),11)
-VLT = Telescope(Observer.at_site('Paranal Observatory'),12)
+NOT = Telescope(Observer.at_site('Roque de los Muchachos'),10.5,'NOT')
+TNG = Telescope(Observer.at_site('Roque de los Muchachos'),11,'TNG')
+VLT = Telescope(Observer.at_site('Paranal Observatory'),12,'VLT')
 SONG = Telescope(Observer(longitude = -16.509, latitude = 28.2917,
 						  elevation = 2395*u.m,timezone = 'Europe/London',
-						  name = 'Teide Observatory'),8)
+						  name = 'Teide Observatory'),8,'SONG')
+SONG_AUS = Telescope(Observer(longitude = 151.8554, latitude = -27.7977,
+						  elevation = 682*u.m,timezone = 'Australia/Queensland',
+						  name = 'Mount Kent Observatory'),5,'SONG_AUS')
