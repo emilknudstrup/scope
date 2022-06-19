@@ -9,3 +9,5 @@ Finding transits of exoplanets observable from given locations
 `cd /path/to/scope`
 
 `python -m pip install .`
+
+`pip install -r requirements.txt`
