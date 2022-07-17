@@ -291,13 +291,13 @@ class GetTarget(object):
 		self.name = name
 		print('Query to NASA Exoplanet Archive for {}.'.format(name))
 		tab = NasaExoplanetArchive.query_object(self.name) 
-		keys = tab.keys()
+		self.keys = tab.keys()
 		arr = tab.as_array()
 		rows = arr.shape[0]
 		subDict = {}
 		idxs = np.argsort(Time(tab['rowupdate'],scale='utc',format='iso').jd)
 		if len(idxs):
-			for key in keys:
+			for key in self.keys:
 				for idx in idxs:
 					val = arr[key][idx]
 					try:
@@ -408,6 +408,7 @@ class GetTarget(object):
 		ra, dec = self.plDict[plname]['ra'], self.plDict[plname]['dec']
 		T0 = self.plDict[plname]['pl_tranmid'] 
 		dur = self.plDict[plname]['pl_trandur']
+		per = self.plDict[plname]['pl_orbper']
 		aAU = self.plDict[plname]['pl_orbsmax']
 		inc = self.plDict[plname]['pl_orbincl']
 		b = self.plDict[plname]['pl_imppar']
@@ -427,7 +428,10 @@ class GetTarget(object):
 		print('Rp = {:0.2f} RJ'.format(RJ))
 
 		#print('\nRM-amplitude = {:0.1f} m/s'.format(rmA))
-		print('lambda = {}+/-{} deg'.format(self.plDict[plname]['pl_projobliq'],self.plDict[plname]['pl_projobliqerr1']))
+		try:
+			print('lambda = {}+/-{} deg'.format(self.plDict[plname]['pl_projobliq'],self.plDict[plname]['pl_projobliqerr1']))
+		except KeyError:
+			print('lambda = nan')
 
 		print('\n'+starname+':')
 		print('Teff = {:d} K'.format(teff))
@@ -441,6 +445,167 @@ class GetTarget(object):
 		#   int(target.ra.hms.h),int(target.ra.hms.m),target.ra.hms.s,\
 		#   int(target.dec.dms.d),abs(int(target.dec.dms.m)),abs(target.dec.dms.s)))
 		# print()
+
+	def prepare(self,syname):
+		pls = ['b','c','d','e','f','g','h','i','j']
+
+		self.byName(syname)
+
+		npls = self.plDict[syname]['sy_pnum']
+
+		#if plname == None: plname = list(self.plDict.keys())[0]
+		self.system = {
+			'Teff' : self.plDict[syname]['st_teff'],#err1,err2
+			'logg' : self.plDict[syname]['st_logg'],
+			'FeH' : self.plDict[syname]['st_met'],
+			'vsini' : self.plDict[syname]['st_vsin'],
+
+		}
+
+		self.planets = {
+			'pls' : []
+		}
+
+		fnpars = ['P','T0','rp','aR','inc','K']
+		NASApars = ['pl_orbper','pl_tranmid','pl_ratror','pl_ratdor','pl_orbincl','pl_rvamp']
+
+		for ii in range(npls):
+			pl = pls[ii]
+			plname = syname+' ' + pl
+			self.byName(plname)
+			self.planets['pls'].append(pl)
+
+			self.planets[pl] = {}
+			for jj, fnpar in enumerate(fnpars):
+				NASApar = NASApars[jj]
+				try:
+					self.planets[pl][fnpar] = self.plDict[plname][NASApar]
+				except KeyError:
+					print('{} not defined setting to np.nan.'.format(fnpar))
+					self.planets[pl][fnpar] = np.nan
+			# self.planets[pl]['P'] = self.plDict[plname]['pl_orbper']
+			# self.planets[pl]['T0'] = self.plDict[plname]['pl_tranmid']
+			# self.planets[pl]['rp'] = self.plDict[plname]['pl_ratror']
+			# self.planets[pl]['aR'] = self.plDict[plname]['pl_ratdor']
+			# self.planets[pl]['inc'] = self.plDict[plname]['pl_orbincl']
+			# self.planets[pl]['K'] = self.plDict[plname]['pl_rvamp']
+			self.planets[pl]['law'] = 'quadratic'
+			self.planets[pl]['cs'] = [0.3,0.2]
+
+			try:
+				e = self.plDict[plname]['pl_orbeccen']
+				w = self.plDict[plname]['pl_orblper']
+			except KeyError:
+				e = 0.0
+				w = 90.
+	 
+			self.planets[pl]['ecc'] = e
+			self.planets[pl]['w'] = w
+
+
+		# self.planets = {
+		# 	'pls': [self.plDict[plname]['pl_letter']],
+		# 	self.plDict[plname]['pl_letter']  : {
+		# 	'P'  : self.plDict[plname]['pl_orbper'],
+		# 	'T0' : self.plDict[plname]['pl_tranmid'],
+		# 	'rp' : self.plDict[plname]['pl_ratror'],
+		# 	'aR' : self.plDict[plname]['pl_ratdor'],
+		# 	'inc': self.plDict[plname]['pl_orbincl'],
+		# 	'ecc': e,
+		# 	'w'  : w,
+		# 	'law': 'quadratic',
+		# 	'cs' : [0.3,0.2]
+		# 	}
+
+		# }
+
+	def prepareFromtracit(self,df,npls=1):
+		pls = ['b','c','d','e','f','g','h','i','j']
+
+		self.planets = {
+			'pls' : []
+		}
+
+		fnpars = ['P','T0','rp','aR','inc','K']
+		tpars = ['P','T0','Rp_Rs','a_Rs','inc','K']
+
+		for ii in range(npls):
+			pl = pls[ii]
+
+			self.planets['pls'].append(pl)
+			self.planets[pl] = {}
+			for jj, fnpar in enumerate(fnpars):
+				tpar = tpars[jj] + '_' + pl
+				try:
+					self.planets[pl][fnpar] = float(df[tpar][4])#self.plDict[plname][NASApar]
+				except KeyError:
+					print('{} not defined setting to np.nan.'.format(fnpar))
+					self.planets[pl][fnpar] = np.nan
+			try:
+				e = self.planets[pl]['e_'+pl]
+				w = self.planets[pl]['w_'+pl]
+			except KeyError:
+				e = 0.0
+				w = 90.
+			self.planets[pl]['ecc'] = e
+			self.planets[pl]['w'] = w
+
+			self.planets[pl]['law'] = 'quadratic'
+			self.planets[pl]['cs'] = [0.3,0.2]
+
+	# 		try:
+	# 			e = self.plDict[plname]['pl_orbeccen']
+	# 			w = self.plDict[plname]['pl_orblper']
+	# 		except KeyError:
+	# 			e = 0.0
+	# 			w = 90.
+	 
+	# 		self.planets[pl]['ecc'] = e
+	# 		self.planets[pl]['w'] = w
+
+	def prepare4tracit(self,syname=None,par=None,n_phot=1,n_spec=1):
+		if not par:
+			import tracit
+			par = tracit.par_struct(n_planets=len(planets),n_phot=n_phot,n_spec=n_spec)
+
+		try:
+			planets = self.planets['pls']
+		except AttributeError:
+			if not syname: print('You need to give the name of the system,\nwhen `prepare` has not been initialized.')
+			self.prepare(syname)
+			planets = self.planets['pls']
+
+		#par = {}
+		par['Planets'] = planets
+
+		#pars = ['P','T0','inc','ecc','K','']
+
+		for pl in par['Planets']:
+			par['P_'+pl]['Value'] = self.planets[pl]['P']
+			par['P_'+pl]['Prior_vals'] = [self.planets[pl]['P'],0.5,0,self.planets[pl]['P']+10]
+			par['T0_'+pl]['Value'] = self.planets[pl]['T0']
+			par['T0_'+pl]['Prior_vals'] = [self.planets[pl]['T0'],0.5,self.planets[pl]['T0']-10,self.planets[pl]['T0']+10]
+			par['a_Rs_'+pl]['Value'] = self.planets[pl]['aR']
+			par['a_Rs_'+pl]['Prior_vals'] = [self.planets[pl]['aR'],0.5,0,self.planets[pl]['aR']+10]
+			par['Rp_Rs_'+pl]['Value'] = self.planets[pl]['rp']
+			par['Rp_Rs_'+pl]['Prior_vals'] = [self.planets[pl]['rp'],0.01,0,1.0]
+			par['inc_'+pl]['Value'] = self.planets[pl]['inc']
+			par['inc_'+pl]['Prior_vals'] = [self.planets[pl]['inc'],0.01,0,90]
+			par['e_'+pl]['Value'] = self.planets[pl]['ecc']
+			par['e_'+pl]['Prior_vals'] = [self.planets[pl]['ecc'],0.01,0,1]
+			par['w_'+pl]['Value'] = self.planets[pl]['w']
+			par['w_'+pl]['Prior_vals'] = [self.planets[pl]['w'],1,-180,180]
+			par['K_'+pl]['Value'] = self.planets[pl]['K']
+			par['K_'+pl]['Prior_vals'] = [self.planets[pl]['K'],1,0,self.planets[pl]['K']+200]
+
+
+		#par['ECs'] = []
+		#par['LinCombs'] = []
+		#par['FPs'] = []
+
+
+
+#
 
 #tab = GetTarget()
 #targets = tab.getTarget('K2-261 b')

@@ -87,11 +87,10 @@ def transit_plots(time,fix_target,observatory,path,target,
 
 	'''
 	duration = target.duration*u.hour
-
 	if full_transit:
 		mid = time[0] + duration/2
 		ing, eg = time[0].isot.split('T')[-1][:8], time[1].isot.split('T')[-1][:8]
-		day = (mid - 0.5).datetime
+		#day = (mid - 0.5).datetime
 	else:
 		mid = time
 		ing, eg = (mid - duration/2).isot.split('T')[-1][:8], (mid + duration/2).isot.split('T')[-1][:8]
@@ -101,6 +100,7 @@ def transit_plots(time,fix_target,observatory,path,target,
 	fig = plt.figure(figsize=(10,10))
 	midT = mid.isot.split('T')[-1][:8]
 	date = mid.isot.split('T')[0]
+	print(mid.isot)
 	obs_name = observatory.name
 	top = '\mathrm{Transit} \ \mathrm{from} \ \ ' + ing + '\ \ \mathrm{to} \ \ ' + eg
 	mid1 = '\mathrm{Midtransit} \ \mathrm{time} \ \ ' + midT
@@ -146,7 +146,6 @@ def transit_plots(time,fix_target,observatory,path,target,
 	ax.set_xticks(xs)
 
 	xl = kk.get_xlabel()
-	nl = [ll for ll in xl.split()]
 
 	xmin, xmax = ax.get_xlim()
 	if plot_moon:
@@ -155,15 +154,18 @@ def transit_plots(time,fix_target,observatory,path,target,
 		ax.plot(mt.plot_date,moon.alt,'--',color='k')
 
 	if night:
-		low = (observatory.sun_set_time(Time(day), which='next') - 0.5*u.hour).datetime
-		high = (observatory.sun_rise_time(Time(low), which='next') + 0.5*u.hour).datetime
+		#low = (observatory.sun_set_time(Time(day), which='next') - 0.5*u.hour).datetime
+		low = (observatory.sun_set_time(Time(mid), which='previous') - 0.5*u.hour).datetime
+		high = (observatory.sun_rise_time(Time(mid), which='next') + 0.5*u.hour).datetime
 		ax.set_xlim(low,high)
-		if low.hour < 5:
-			dd = int(nl[2].split('-')[-1])
-			new_string = nl[2][:-2]
-			if dd < 9: new_string = '{}0{:d}'.format(new_string,dd+1)
-			else: new_string = '{}{:d}'.format(new_string,dd+1)
-			nl[2] = new_string
+		nf = observatory.sun_set_time(Time(mid), which='previous') - 0.5*u.hour
+		xl = xl[:10] + nf.isot.split('T')[0] + xl[20:]
+		# if low.hour < 5:
+		# 	dd = int(nl[2].split('-')[-1])
+		# 	new_string = nl[2][:-2]
+		# 	if dd < 9: new_string = '{}0{:d}'.format(new_string,dd+1)
+		# 	else: new_string = '{}{:d}'.format(new_string,dd+1)
+		# 	nl[2] = new_string
 	else:
 		xmin = Time(xmin,format='plot_date')
 		xmax = Time(xmax,format='plot_date')
@@ -176,6 +178,7 @@ def transit_plots(time,fix_target,observatory,path,target,
 			ax.fill_between(xlows,0,y2=90,color='C7',alpha=0.5)
 			ax.fill_between(xhighs,0,y2=90,color='C7',alpha=0.5)
 
+	nl = [ll for ll in xl.split()]
 	xl = '$'
 	for ll in nl: xl += '\mathrm{' + ll + '} \ '
 	xl += '$'

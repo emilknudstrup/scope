@@ -67,3 +67,6 @@ SONG = Telescope(Observer(longitude = -16.509, latitude = 28.2917,
 SONG_AUS = Telescope(Observer(longitude = 151.8554, latitude = -27.7977,
 						  elevation = 682*u.m,timezone = 'Australia/Queensland',
 						  name = 'Mount Kent Observatory'),5,'SONG_AUS')
+FUT = Telescope(Observer(longitude = 151.8554, latitude = -27.7977,
+						  elevation = 682*u.m,timezone = 'Australia/Queensland',
+						  name = 'Mount Kent Observatory'),15,'FUT')
