@@ -3,12 +3,15 @@
 """
 
 """
+from astropy.coordinates import SkyCoord 
 from astropy.time import Time
 import astropy.units as u
 from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
+from astroquery.simbad import Simbad
 import numpy as np
 from astropy import constants as const
 import pickle
+import pandas as pd
 
 class Target(object):
 	'''Target class.
@@ -52,7 +55,8 @@ class Target(object):
 	def __init__(self,per,T0,duration,Vmag,RA,Dec,
 			  ID='Planet name',starID='Star name',
 			  b=np.nan,vsini=np.nan,Teff=np.nan,rp=np.nan,
-			  RMamp=np.nan,lam=np.nan,psi=np.nan,a=np.nan):
+			  RMamp=np.nan,lam=np.nan,psi=np.nan,a=np.nan,
+			  exp=1800.):
 		'''Initialize target.
 
 		Parameters
@@ -101,6 +105,7 @@ class Target(object):
 		self.RMamp = RMamp
 		self.lam = lam
 		self.psi = psi
+		self.exp = exp
 
 
 	def makeTarget(self):
@@ -113,7 +118,7 @@ class Target(object):
 
 class GetTarget(object):
 	
-	ESSENTIALS = ['ra','dec','pl_orbper','pl_tranmid','pl_ratror','st_vsin','sy_vmag','pl_orbsmax','pl_radj','st_rad','pl_orbincl']
+	ESSENTIALS = ['ra','dec','pl_orbper','pl_tranmid','pl_ratror','pl_ratdor','st_vsin','sy_vmag','pl_orbsmax','pl_radj','st_rad','pl_orbincl']
 	
 	def __init__(self,ADDITIONAL=['pl_trueobliq','st_teff','pl_trandur','pl_orbeccen','pl_imppar']):
 		self.ADDITIONAL = ADDITIONAL
@@ -603,6 +608,43 @@ class GetTarget(object):
 		#par['LinCombs'] = []
 		#par['FPs'] = []
 
+	def targetFromcsv(self,filename,skiprows=1):
+		df = pd.read_csv(filename,skiprows=1)
+		names = df['Name']
+		targets = df['Target']
+
+
+		for idx, name in enumerate(names):
+			result_table = Simbad.query_object(name)
+			ra, dec = result_table['RA'][0], result_table['DEC'][0]
+			cc = SkyCoord(ra=ra,dec=dec,unit=(u.hourangle, u.deg))
+			
+			try:
+				per = df['Period'][idx]
+			except KeyError:
+				per = 0.0
+			try:
+				t0 = df['T0'][idx]
+			except KeyError:
+				t0 = 0.0
+			try:
+				dur = df['Duration'][idx]
+			except KeyError:
+				dur = 0.0
+			try:
+				Vmag = df['Vmag'][idx]
+			except KeyError:
+				Vmag = 0.0
+			try:
+				exp = float(df['Exp (s)'][idx])
+			except KeyError:
+				exp = 900
+
+			tar = Target(per,t0,dur,Vmag,cc.ra.deg,cc.dec.deg)#,ID=targets[idx],starID=name,exp=exp)
+			tar.ID = targets[idx]
+			tar.starID = name
+			tar.exp = exp
+			self.targets.append(tar)
 
 
 #

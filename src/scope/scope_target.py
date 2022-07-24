@@ -14,7 +14,7 @@ from astropy.time import Time
 import pandas as pd
 import os
 import numpy as np
-from .plots import transit_plots, showtime,  visPlot
+from .plots import transit_plots, showtime,  visPlot, schedulePlot, skyPlot
 
 def get_twilights(site,time,twilight = 'astronomical'):
 	if twilight == 'astronomical':
@@ -176,11 +176,58 @@ def getVisPlot(targets,telescope,time,
 
 	time = Time(time,scale=time_scale,format=time_format)
 	obs_targets = []
+	exposures = []
 	for ii, target in enumerate(targets):
 		per, T0, dur, ra, dec = target.makeTarget()
 		name = target.ID
 		obs_targets.append(FixedTarget(SkyCoord(ra=ra,dec=dec),name=name))
-	visPlot(obs_targets,telescope,time,moon=moon,path=path,legend_outside=False,interact=True)
+		exposures.append(target.exp)
+	visPlot(obs_targets,telescope,time,moon=moon,path=path,legend_outside=legend_outside,interact=interact)
+	#skyPlot(obs_targets,telescope,time,moon=moon,path=path)#,legend_outside=legend_outside,interact=True)
+	#schedulePlot(obs_targets,telescope,time,exposures=exposures)
+	#schedulePlot(obs_targets,telescope,time,exposures=exposures)
+
+def getSkyPlot(targets,telescope,time,
+	path=False,moon=True,
+	time_scale='utc',time_format='isot',
+	legend_outside=False,interact=True):
+
+	time = Time(time,scale=time_scale,format=time_format)
+	obs_targets = []
+	for ii, target in enumerate(targets):
+		per, T0, dur, ra, dec = target.makeTarget()
+		name = target.ID
+		obs_targets.append(FixedTarget(SkyCoord(ra=ra,dec=dec),name=name))
+	skyPlot(obs_targets,telescope,time,moon=moon,path=path)#,legend_outside=legend_outside,interact=True)
+
+def scheduler(targets,telescope,time,
+	path=False,moon=True,
+	time_scale='utc',time_format='isot',
+	legend_outside=False,interact=True):
+
+	time = Time(time,scale=time_scale,format=time_format)
+	obs_targets = []
+	exposures = []
+	for ii, target in enumerate(targets):
+		per, T0, dur, ra, dec = target.makeTarget()
+		name = target.ID
+		obs_targets.append(FixedTarget(SkyCoord(ra=ra,dec=dec),name=name))
+		exposures.append(target.exp)
+	schedulePlot(obs_targets,telescope,time,exposures=exposures)
+
+
+# def scheduler(targets,telescope,time,
+# 	path=False,moon=True,
+# 	time_scale='utc',time_format='isot',
+# 	legend_outside=False,interact=True):
+
+# 	time = Time(time,scale=time_scale,format=time_format)
+# 	obs_targets = []
+# 	for ii, target in enumerate(targets):
+# 		per, T0, dur, ra, dec = target.makeTarget()
+# 		name = target.ID
+# 		obs_targets.append(FixedTarget(SkyCoord(ra=ra,dec=dec),name=name))
+# 	visPlot(obs_targets,telescope,time,moon=moon,path=path,legend_outside=False,interact=True)
 
 
 def checkVisibility(targets,telescope,start,end,path=None,alt_const=30,moon_sep=30,weeks=2,
