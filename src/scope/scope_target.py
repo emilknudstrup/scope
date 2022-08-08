@@ -74,7 +74,34 @@ def transitTimes(observer,target,obs_time,ntransits=20,alt_const=30,moon_sep=30,
 def getTransits(targets,telescope,start,end,path,plDict=None,
 	alt_const=30,moon_sep=30,full_transit=True,night=True,
 	limits={}):
-	'''Pars
+	'''
+	Returns the times for the observations.
+
+	Parameters:
+		targets : list of class ``target.Target``
+			List of targets.	
+
+		telescope : class ``astroplan.Observer``			
+
+		start : string	
+			Start date of observations.
+
+		end : string		
+			End date of observations.	
+
+		path : string		
+			Path to save the observations.
+
+		plDict : dictionary	
+
+		alt_const : float	
+
+		moon_sep : float	
+
+
+	Returns:
+		times : list of arrays	
+
 
 	'''
 
@@ -172,8 +199,35 @@ def getTransits(targets,telescope,start,end,path,plDict=None,
 def getVisPlot(targets,telescope,time,
 	path=False,moon=True,
 	time_scale='utc',time_format='isot',
-	legend_outside=False,interact=True):
+	interact=True):
+	'''
+		Plot the visibility of a list of targets.
 
+		Parameters:
+			targets : list of Target objects
+			telescope : Telescope object
+			time : Time object
+			path : str
+				Path to save the plots.
+				If False, plots are not saved.
+			moon : bool
+				If True, the moon is plotted.
+			time_scale : str
+				Time scale of the plot.
+				'utc' or 'tdb'.
+			time_format : str
+				Time format of the plot.
+				'isot' or 'jd'.	
+			interact : bool	
+				If True, the plot is interactive.
+				If False, the plot is not interactive.
+
+		Returns:
+			fig : matplotlib.pyplot.figure
+				The figure of the plot.
+			ax : matplotlib.pyplot.axes
+				The axes of the plot.
+	'''
 	time = Time(time,scale=time_scale,format=time_format)
 	obs_targets = []
 	exposures = []
@@ -182,10 +236,9 @@ def getVisPlot(targets,telescope,time,
 		name = target.ID
 		obs_targets.append(FixedTarget(SkyCoord(ra=ra,dec=dec),name=name))
 		exposures.append(target.exp)
-	visPlot(obs_targets,telescope,time,moon=moon,path=path,legend_outside=legend_outside,interact=interact)
-	#skyPlot(obs_targets,telescope,time,moon=moon,path=path)#,legend_outside=legend_outside,interact=True)
-	#schedulePlot(obs_targets,telescope,time,exposures=exposures)
-	#schedulePlot(obs_targets,telescope,time,exposures=exposures)
+	#visPlot(obs_targets,telescope,time,moon=moon,path=path,legend_outside=legend_outside,interact=interact)
+	visPlot(obs_targets,telescope,time,moon=moon,path=path,interact=interact)
+
 
 def getSkyPlot(targets,telescope,time,
 	path=False,moon=True,
