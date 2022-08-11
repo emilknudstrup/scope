@@ -292,6 +292,32 @@ class GetTarget(object):
 
 
 
+	def fromSIMBAD(self,name,per=0.0,t0=0.0,dur=0.0,Vmag=0.0,exp=900):
+
+		self.name = name
+		print('Query to SIMBAD for {}.'.format(name))
+		result_table = Simbad.query_object(name)
+		ra, dec = result_table['RA'][0], result_table['DEC'][0]
+		cc = SkyCoord(ra=ra,dec=dec,unit=(u.hourangle, u.deg))
+
+		tar = Target(per,t0,dur,Vmag,cc.ra.deg,cc.dec.deg)#,ID=targets[idx],starID=name,exp=exp)
+		tar.ID = name
+		tar.starID = name
+		tar.exp = exp
+		self.targets.append(tar)
+
+	def byHand(self,ra,dec,name='Target',per=0.0,t0=0.0,dur=0.0,Vmag=0.0,exp=900):
+
+		self.name = name
+		cc = SkyCoord(ra=ra,dec=dec,unit=(u.hourangle, u.deg))
+
+		tar = Target(per,t0,dur,Vmag,cc.ra.deg,cc.dec.deg)#,ID=targets[idx],starID=name,exp=exp)
+		tar.ID = name
+		tar.starID = name
+		tar.exp = exp
+		self.targets.append(tar)
+
+
 	def byName(self,name):
 		self.name = name
 		print('Query to NASA Exoplanet Archive for {}.'.format(name))
@@ -323,8 +349,7 @@ class GetTarget(object):
 					except KeyError:
 						#subDict[key] = np.nan
 						print('Essential parameter {} appears to be nan.'.format(key))
-			self.plDict[name] = subDict
-		
+			self.plDict[name] = subDict	
 	
 	def createTransitTargetlist(self):
 		pls = self.plDict.keys()
@@ -609,7 +634,7 @@ class GetTarget(object):
 		#par['FPs'] = []
 
 	def targetFromcsv(self,filename,skiprows=1):
-		df = pd.read_csv(filename,skiprows=1)
+		df = pd.read_csv(filename,skiprows=skiprows)
 		names = df['Name']
 		targets = df['Target']
 

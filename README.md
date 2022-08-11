@@ -20,9 +20,19 @@ import scope
 
 ## Initialize target
 tar = scope.target.GetTarget()
-## Search by name
+## Search by name (NASA Exoplanet Archive)
 tar.byName('K2-290')
-## Create target lsit
+## ...or from SIMBAD
+sim = 0
+if sim:
+	tar.fromSIMBAD('TYC 6193-663-1')
+## ...or manually
+man = 0
+if man:
+	ra, dec = '15 39 25.86253', '-20 11 55.77049'
+	tar.byHand(ra,dec,name='K2-290')
+
+## Create target list
 tar.createTargetlist()
 
 ## Choose a telescope
