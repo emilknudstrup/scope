@@ -134,9 +134,11 @@ scope.scope_target.getTransits(tar.targets,tel,start,end,path)
 
 ### Example: create target list from a CSV file
 
-| Target | Name | RA | Dec |
+| Target   | Name          | RA           | Dec           |
 | -------- | --------------| ------------ | ------------- |
-| TOI-2025 | TYC 4595-797-1| 18 51 10.838 | 82 14 43.5636 |
+| TOI-2025 | TYC 4595-797-1| 18 51 10.839 | 82 14 43.5636 |
+| ...      | ...           | ...          | ...           |
+| TOI-2158 | HD 348661     | 18 27 14.461 | 82 14 43.5636 |
 
 ```python
 import scope
