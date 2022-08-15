@@ -532,6 +532,61 @@ class GetTarget(object):
 			self.planets[pl]['ecc'] = e
 			self.planets[pl]['w'] = w
 
+	def prepareByHand(self,pl='b'):
+		pls = ['b','c','d','e','f','g','h','i','j']
+
+		self.byName(syname)
+
+		npls = self.plDict[syname]['sy_pnum']
+
+		#if plname == None: plname = list(self.plDict.keys())[0]
+		self.system = {
+			'Teff' : self.plDict[syname]['st_teff'],#err1,err2
+			'logg' : self.plDict[syname]['st_logg'],
+			'FeH' : self.plDict[syname]['st_met'],
+			'vsini' : self.plDict[syname]['st_vsin'],
+
+		}
+
+		self.planets = {
+			'pls' : []
+		}
+
+		fnpars = ['P','T0','rp','aR','inc','K']
+		NASApars = ['pl_orbper','pl_tranmid','pl_ratror','pl_ratdor','pl_orbincl','pl_rvamp']
+
+		for ii in range(npls):
+			pl = pls[ii]
+			plname = syname+' ' + pl
+			self.byName(plname)
+			self.planets['pls'].append(pl)
+
+			self.planets[pl] = {}
+			for jj, fnpar in enumerate(fnpars):
+				NASApar = NASApars[jj]
+				try:
+					self.planets[pl][fnpar] = self.plDict[plname][NASApar]
+				except KeyError:
+					print('{} not defined setting to np.nan.'.format(fnpar))
+					self.planets[pl][fnpar] = np.nan
+			# self.planets[pl]['P'] = self.plDict[plname]['pl_orbper']
+			# self.planets[pl]['T0'] = self.plDict[plname]['pl_tranmid']
+			# self.planets[pl]['rp'] = self.plDict[plname]['pl_ratror']
+			# self.planets[pl]['aR'] = self.plDict[plname]['pl_ratdor']
+			# self.planets[pl]['inc'] = self.plDict[plname]['pl_orbincl']
+			# self.planets[pl]['K'] = self.plDict[plname]['pl_rvamp']
+			self.planets[pl]['law'] = 'quadratic'
+			self.planets[pl]['cs'] = [0.3,0.2]
+
+			try:
+				e = self.plDict[plname]['pl_orbeccen']
+				w = self.plDict[plname]['pl_orblper']
+			except KeyError:
+				e = 0.0
+				w = 90.
+	 
+			self.planets[pl]['ecc'] = e
+			self.planets[pl]['w'] = w
 
 		# self.planets = {
 		# 	'pls': [self.plDict[plname]['pl_letter']],

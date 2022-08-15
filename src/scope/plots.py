@@ -6,7 +6,7 @@ Created on Fri Apr 22 22:18:20 2022
 @author: emil
 """
 import matplotlib.pyplot as plt
-plt.rc('text',usetex=True)
+plt.rc('text',usetex=False)
 from astropy.time import Time
 import numpy as np
 from astroplan.plots import plot_altitude, plot_sky
