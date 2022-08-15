@@ -13,7 +13,7 @@ Finding transits of exoplanets observable from given locations
 
 `pip install -r requirements.txt`
 
-### Example: checking for transits of all planet at given site in given time
+### Example: checking for transits of all planets at given site in given time interval
 ```python
 import pandas as pd
 import os
@@ -134,12 +134,15 @@ scope.scope_target.getTransits(tar.targets,tel,start,end,path)
 
 ### Example: create target list from a CSV file
 
+scope can generate a target list and plots from a CSV file if it's in the following format:
+
 | Target   | Name          | RA           | Dec           |
 | -------- | --------------| ------------ | ------------- |
 | TOI-2025 | TYC 4595-797-1| 18 51 10.839 | 82 14 43.5636 |
 | ...      | ...           | ...          | ...           |
 | TOI-2158 | HD 348661     | 18 27 14.461 | 82 14 43.5636 |
 
+This is how you would load it in with scope
 ```python
 import scope
 
@@ -152,7 +155,7 @@ tel = scope.telescope.NOT
 ## Initialize target
 tar = scope.target.GetTarget()
 ## Read in a target list from a CSV file
-tar.targetFromcsv('spreadsheet.csv',skiprows=0)#The skiprows is to remove the "header"
+tar.targetFromcsv('spreadsheet.csv',skiprows=0)#The skiprows is to remove a "header"
 ## Create target lsit
 tar.createTargetlist()
 
