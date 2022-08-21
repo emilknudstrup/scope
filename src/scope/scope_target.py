@@ -243,7 +243,8 @@ def getVisPlot(targets,telescope,time,
 def getSkyPlot(targets,telescope,time,
 	path=False,moon=True,
 	time_scale='utc',time_format='isot',
-	legend_outside=False,interact=True):
+	legend_outside=False,interact=True,
+	warn_below_horizon=False):
 
 	time = Time(time,scale=time_scale,format=time_format)
 	obs_targets = []
@@ -251,7 +252,7 @@ def getSkyPlot(targets,telescope,time,
 		per, T0, dur, ra, dec = target.makeTarget()
 		name = target.ID
 		obs_targets.append(FixedTarget(SkyCoord(ra=ra,dec=dec),name=name))
-	skyPlot(obs_targets,telescope,time,moon=moon,path=path)#,legend_outside=legend_outside,interact=True)
+	skyPlot(obs_targets,telescope,time,moon=moon,path=path,warn_below_horizon=warn_below_horizon)#,legend_outside=legend_outside,interact=True)
 
 def scheduler(targets,telescope,time,
 	path=False,moon=True,

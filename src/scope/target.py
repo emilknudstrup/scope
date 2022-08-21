@@ -55,6 +55,7 @@ class Target(object):
 	def __init__(self,per,T0,duration,Vmag,RA,Dec,
 			  ID='Planet name',starID='Star name',
 			  b=np.nan,vsini=np.nan,Teff=np.nan,rp=np.nan,
+			  ecc=np.nan,w=np.nan,inc=np.nan,
 			  RMamp=np.nan,lam=np.nan,psi=np.nan,a=np.nan,
 			  exp=1800.):
 		'''Initialize target.
@@ -102,6 +103,9 @@ class Target(object):
 		self.vsini = vsini
 		self.rp = rp
 		self.a = a
+		self.inc = inc
+		self.ecc = ecc
+		self.w = w
 		self.RMamp = RMamp
 		self.lam = lam
 		self.psi = psi
@@ -118,16 +122,18 @@ class Target(object):
 
 class GetTarget(object):
 	
-	ESSENTIALS = ['ra','dec','pl_orbper','pl_tranmid','pl_ratror','pl_ratdor','st_vsin','sy_vmag','pl_orbsmax','pl_radj','st_rad','pl_orbincl']
+	#ESSENTIALS = ['ra','dec','pl_orbper','pl_tranmid','pl_ratror','pl_ratdor','st_vsin','sy_vmag','pl_orbsmax','pl_radj','st_rad','pl_orbincl']
+	ESSENTIALS = ['ra','dec','pl_orbper','pl_tranmid']
 	
-	def __init__(self,ADDITIONAL=['pl_trueobliq','st_teff','pl_trandur','pl_orbeccen','pl_imppar']):
+	def __init__(self,ADDITIONAL=['pl_trueobliq','st_teff','pl_trandur','pl_orbeccen',
+								'pl_imppar','st_vsin','pl_orbsmax','pl_radj','st_rad',
+								'pl_ratror','pl_ratdor','sy_vmag','pl_orbincl']):
 		self.ADDITIONAL = ADDITIONAL
 		#self.tab = None
 		self.plDict = {}
 		self.targets = []
 	
 	def getRMTargets(self,table='pscomppars',allkeys=True):
-		table = table
 
 		tab = NasaExoplanetArchive.query_criteria_async(table=table)
 		
@@ -205,34 +211,42 @@ class GetTarget(object):
 						continue
 
 				if all(np.isfinite(values)): 
-					aAU = subDict['pl_orbsmax']
-					Rp = subDict['pl_radj']
-					Rs = subDict['st_rad']
-					inc = subDict['pl_orbincl']
-					per = subDict['pl_orbper']
+					#aAU = subDict['pl_orbsmax']
+					#Rp = subDict['pl_radj']
+					#Rs = subDict['st_rad']
 					#aR = aAU*const.au/(Rs*const.R_sun)
 					#aR = aR.value
 					#subDict['pl_ratdor'] = aR
-					aR = subDict['pl_ratdor'] 
+					aR = subDict['pl_ratdor']
+					inc = subDict['pl_orbincl']
+
 					try:
 						b = subDict['pl_imppar']
 					except KeyError:
-						b = np.nan
-					if np.isnan(b):
-						if inc > 90: inc = 90-(inc-90)
+						#b = np.nan
+						if inc > 90: inc = 180-inc
 						b = aR*np.cos(inc*np.pi/180.)
 						subDict['pl_imppar'] = b
+
+					#if np.isnan(b):
 					#rp = Rp*const.R_jup/Rs*const.R_sun
-					subDict['pl_RMamp'] = 0.7*subDict['st_vsin']*np.sqrt(1-b**2)*np.power(subDict['pl_ratror'],2)
+					try:
+						subDict['pl_RMamp'] = 0.7*subDict['st_vsin']*np.sqrt(1-b**2)*np.power(subDict['pl_ratror'],2)
+					except KeyError:
+						subDict['pl_RMamp'] = np.nan
+
 					try:
 						dur = subDict['pl_trandur']
 					except KeyError:
 						dur = np.nan
+					
 					if np.isnan(dur):
+						per = subDict['pl_orbper']
 						rp = subDict['pl_ratror'] 
 						nom = np.sqrt((1+rp)**2-b**2)
 						den = aR*np.sin(inc*np.pi/180.)
 						dur = 24*per/np.pi*np.arcsin(nom/den)
+						if np.isnan(dur): continue
 						subDict['pl_trandur'] = dur
 
 					if allkeys:
@@ -690,8 +704,8 @@ class GetTarget(object):
 
 	def targetFromcsv(self,filename,skiprows=1):
 		df = pd.read_csv(filename,skiprows=skiprows)
-		names = df['Name']
-		targets = df['Target']
+		names = df['host']
+		targets = df['name']
 
 
 		for idx, name in enumerate(names):

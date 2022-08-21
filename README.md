@@ -136,7 +136,7 @@ scope.scope_target.getTransits(tar.targets,tel,start,end,path)
 
 scope can generate a target list and plots from a CSV file if it's in the following format:
 
-| Target   | Name          | RA           | Dec           |
+| name     | host          | RA           | Dec           |
 | -------- | --------------| ------------ | ------------- |
 | TOI-2025 | TYC 4595-797-1| 18 51 10.839 | 82 14 43.5636 |
 | ...      | ...           | ...          | ...           |

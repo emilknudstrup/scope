@@ -900,7 +900,7 @@ def schedulePlot(targets,site,time,
 				axm.set_yticks([])
 	plt.show()
 
-def skyPlot(targets,observatory,time,moon,path):
+def skyPlot(targets,observatory,time,moon,path,warn_below_horizon=False):
 	site_name = observatory.name
 	sun_set_next = observatory.sun_set_time(Time(time), which='next')
 	sun_set_previous = observatory.sun_set_time(Time(time), which='previous')
@@ -923,6 +923,10 @@ def skyPlot(targets,observatory,time,moon,path):
 
 	#time = (sun_set - 1*u.hour) + np.arange(0,25,0.125)*u.hour
 	time = (sun_set - 1*u.hour) + np.arange(0,25,1.0)*u.hour
+	time = Time(np.linspace(sun_set.jd,sun_rise.jd,10),format='jd',scale='utc')#Time()
+	print(sun_rise.isot)
+	print(time.isot)
+
 
 	site_name = '\ '.join(site_name.split())
 	title = r'$\rm Observed\ from\ {}.$'.format(site_name)
@@ -951,7 +955,7 @@ def skyPlot(targets,observatory,time,moon,path):
 		ms = mstyles[ii//ncs]
 		style = {'marker' : ms,'facecolor' : color, 'edgecolor' : 'k', 'zorder' : 8, 'label' : name}
 
-		kk = plot_sky(obs_target, observatory, time, ax=axsky,style_kwargs=style)
+		kk = plot_sky(obs_target, observatory, time, ax=axsky,style_kwargs=style,warn_below_horizon=warn_below_horizon)
 		marks.append(((kk.get_children()[ii],color,name)))
 
 
