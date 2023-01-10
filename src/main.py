@@ -30,6 +30,12 @@ if __name__ == '__main__':
 
 	parser.add_argument('-t', '--targets', type=str, default='', 
 						help='Target to plot')
+	
+	## Catalog
+	parser.add_argument('-cat', '--catalog', type=str, default='NASA', 
+						help='Catalog to query. NASA for planets, else SIMBAD',
+						choices=['NASA','SIMBAD'])
+
 	## input site
 	parser.add_argument('-s', '--site', type=str, default='NOT', 
 						help='Telescope/observing site')
@@ -84,7 +90,10 @@ if __name__ == '__main__':
 
 	
 	for ii, t in enumerate(inputTargets):
-		target.byName(t)
+		if args.catalog == 'NASA':
+			target.byName(t)
+		else:
+			target.fromSIMBAD(t)
 		if len(inputPeriods):
 			target[t]['pl_orbper'] = float(inputPeriods[ii])
 		if len(inputMidtransits):

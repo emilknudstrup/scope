@@ -710,7 +710,11 @@ class GetTarget(object):
 
 		for idx, name in enumerate(names):
 			result_table = Simbad.query_object(name)
-			ra, dec = result_table['RA'][0], result_table['DEC'][0]
+			try:
+				ra, dec = result_table['RA'][0], result_table['DEC'][0]
+			except TypeError:
+				print('Name of host is given as '+ name+'.\nIs that correct?\nSkipping. ')
+				continue
 			cc = SkyCoord(ra=ra,dec=dec,unit=(u.hourangle, u.deg))
 			
 			try:

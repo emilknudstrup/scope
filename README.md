@@ -49,7 +49,7 @@ else:
 
 ## Store output with some selected, key parameters 
 tardf = pd.read_csv(path+'/targets.csv')
-keys = ['pl_orbper','pl_orbeccen','pl_imppar','st_vsin']
+keys = ['pl_name','pl_orbper','pl_orbeccen','pl_imppar','st_vsin']
 
 ndict = {}
 for key in keys: ndict[key] = list(tardf[key])

@@ -6,12 +6,13 @@ Created on Fri Apr 22 22:18:20 2022
 @author: emil
 """
 import matplotlib.pyplot as plt
-plt.rc('text',usetex=False)
+plt.rc('text',usetex=True)
 from astropy.time import Time
 import numpy as np
 from astroplan.plots import plot_altitude, plot_sky
 import astropy.units as u
 from matplotlib.patches import Wedge, Circle
+import matplotlib.ticker as mticker
 from astroquery.simbad import Simbad
 import datetime
 import subprocess
@@ -115,7 +116,7 @@ def transit_plots(time,fix_target,observatory,path,target,
 	fig = plt.figure(figsize=(10,10))
 	midT = mid.isot.split('T')[-1][:8]
 	date = mid.isot.split('T')[0]
-	print(mid.isot)
+	#print(mid.isot)
 	obs_name = observatory.name
 	top = '\mathrm{Transit} \ \mathrm{from} \ \ ' + ing + '\ \ \mathrm{to} \ \ ' + eg
 	mid1 = '\mathrm{Midtransit} \ \mathrm{time} \ \ ' + midT
@@ -147,18 +148,21 @@ def transit_plots(time,fix_target,observatory,path,target,
 			   brightness_shading=True, airmass_yaxis=False, min_altitude=3.0)
 
 
-	ax.axhline(y=30.,linestyle='--',color='C3',alpha=0.6)
+	ax.axhline(y=30.,ls='--',color='C3',alpha=0.6)
 
 	newxlabels = []
 	xlabels = ax.get_xticklabels()
 	xs = []
 	for xlabel in xlabels:
-		text = r'$\rm {}$'.format(xlabel.get_text())
+		#text = r'$\rm {}$'.format(xlabel.get_text())
+		text = r'$\rm {}$'.format(xlabel.get_text()[1:-1])
 		xx, yy = xlabel.get_position()
 		newxlabels.append(text)
 		xs.append(xx)
+	ticks_loc = ax.get_xticks().tolist()
+	ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
 	ax.set_xticklabels(newxlabels)
-	ax.set_xticks(xs)
+	#ax.set_xticks(xs)
 
 	xl = kk.get_xlabel()
 
@@ -291,7 +295,7 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 	# 	axo.tick_params(labelcolor='w', top=False, bottom=False, left=False, right=False)
 	# 	fig.suptitle(title,y=1.008)
 	# else:
-	fig.suptitle(title,y=0.985,x=0.45)
+	fig.suptitle(title,y=0.985,x=0.4)
 	ax = fig.add_subplot(111)
 
 
@@ -413,7 +417,7 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 						horizontalalignment='center',
 						verticalalignment='center', 
 						transform=ax.transAxes,
-						bbox=dict(facecolor='white', alpha=1.0))
+						bbox=dict(facecolor='none', alpha=1.0))
 
 					fig.canvas.draw()
 
@@ -428,7 +432,7 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 		# 		#loc='upper left',bbox_to_anchor=(0.15, 0.95))
 		# 		loc='upper left',bbox_to_anchor=(0.1, 1.1))
 		ncol = 1
-		#if len(targets)//12: ncol = len(targets)//12
+		if len(targets)//12: ncol = len(targets)//12
 
 		f = 0.8
 		if len(targets) > 9: f = 0.7
@@ -436,14 +440,18 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 		elif len(targets) > 21: f = 0.5
 		elif len(targets) > 27: f = 0.4
 
-
+		xl = 1.28
+		fa = 0.8
+		if ncol == 2: 
+			xl = 1.4
+			fa = 1
 		leg = ax.legend(handles, labels,loc="lower right",
 			  handler_map={tuple: AnyObjectHandler()},
-			  fancybox=True,#shadow=True,
-			  fontsize=f*FONT,
-			  bbox_to_anchor=(1.26,0.25),
+			  fancybox=True,shadow=True,
+			  fontsize=f*FONT,#framealpha=fa,
+			  bbox_to_anchor=(xl,0.15),
 			  ncol=ncol) 
-
+		leg.set_zorder(100)
 		if interact:
 			lined = dict()
 			for legline, origlines in zip(leg.get_lines(), lines):
@@ -476,6 +484,21 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 
 			fig.canvas.mpl_connect('pick_event', onpick)
 
+	moon_phase = 1
+	if moon_phase:
+		axm = fig.add_subplot(9,9,1, autoscale_on=False, aspect='equal', xlim=[-0.05,1.05], ylim=[-0.05,1.05])
+		mid = time[len(time)//2]
+		ph = observatory.moon_phase(mid).value
+		kk = observatory.moon_illumination(mid)
+		dd = int(mid.isot.split('T')[0].split('-')[-1])
+		angle = 90
+		if dd > 14: angle += 180		
+		
+		dual_half_circle((0.5, 0.5), radius=0.5, angle=angle, ax=axm, phase=ph*180./np.pi,ill=kk)
+		plt.setp(axm.get_xticklabels(),visible=False)
+		plt.setp(axm.get_yticklabels(),visible=False)
+		axm.set_xticks([])
+		axm.set_yticks([])
 
 	plt.tight_layout()
 	if path:
@@ -922,15 +945,14 @@ def skyPlot(targets,observatory,time,moon,path,warn_below_horizon=False):
 	high = (sun_rise + 1*u.hour).datetime
 
 	#time = (sun_set - 1*u.hour) + np.arange(0,25,0.125)*u.hour
-	time = (sun_set - 1*u.hour) + np.arange(0,25,1.0)*u.hour
-	time = Time(np.linspace(sun_set.jd,sun_rise.jd,10),format='jd',scale='utc')#Time()
-	print(sun_rise.isot)
-	print(time.isot)
+	#time = (sun_set - 1*u.hour) + np.arange(0,25,0.5)*u.hour
+	time = Time(np.linspace(sun_set.jd,sun_rise.jd,15),format='jd',scale='utc')#Time()
+	#print(sun_rise.isot)
+	#print(time.isot)
 
 
 	site_name = '\ '.join(site_name.split())
-	title = r'$\rm Observed\ from\ {}.$'.format(site_name)
-
+	title = r'$\rm Observed\ from\ {}.\ Sunset\ UTC\ {}.$'.format(site_name,time[0].isot[:-4])
 	fig = plt.figure()
 	axsky = fig.add_subplot(projection='polar', facecolor="lightgoldenrodyellow")
 	fig.suptitle(title,y=1.00)
@@ -957,6 +979,8 @@ def skyPlot(targets,observatory,time,moon,path,warn_below_horizon=False):
 
 		kk = plot_sky(obs_target, observatory, time, ax=axsky,style_kwargs=style,warn_below_horizon=warn_below_horizon)
 		marks.append(((kk.get_children()[ii],color,name)))
+		nstyle = {'marker' : ms,'facecolor' : color, 'edgecolor' : 'k', 'zorder' : 9, 's' : 60, 'label' : None}
+		plot_sky(obs_target, observatory, time[0], ax=axsky,style_kwargs=nstyle)
 
 
 	my_handler_map = {ErrorbarContainer: re_order_errorbarHandler(numpoints=len(targets))}

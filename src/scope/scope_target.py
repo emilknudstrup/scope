@@ -166,8 +166,9 @@ def getTransits(targets,telescope,start,end,path,plDict=None,
 					mid = Time(time[0].jd + (time[1].jd-time[0].jd)*0.5,scale='utc',format='jd')
 					print('The night {}, midtransit at {}'.format(twi_ev.isot.split('T')[0],mid.isot))
 				else:
-					time = Time(time,scale='utc')
+					time = Time(time[0],scale='utc',format='jd')
 					twi_ev = telescope.location.twilight_evening_civil(time, which='previous')
+					#print(time,twi_ev,fullpath)
 					fname = fullpath + '/' + fullpath.split('/')[-1] + '_' + twi_ev.isot.split('T')[0] + '.png'
 					print('The night {}, midtransit at {}'.format(twi_ev.isot.split('T')[0],time.isot))
 				try:
