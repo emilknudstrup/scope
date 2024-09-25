@@ -55,7 +55,7 @@ class Target(object):
 	def __init__(self,per,T0,duration,Vmag,RA,Dec,
 			  ID='Planet name',starID='Star name',
 			  b=np.nan,vsini=np.nan,Teff=np.nan,rp=np.nan,
-			  ecc=np.nan,w=np.nan,inc=np.nan,
+			  ecc=np.nan,w=np.nan,inc=np.nan,Mp=np.nan,
 			  RMamp=np.nan,lam=np.nan,psi=np.nan,a=np.nan,
 			  exp=1800.):
 		'''Initialize target.
@@ -103,6 +103,7 @@ class Target(object):
 		self.vsini = vsini
 		self.rp = rp
 		self.a = a
+		self.Mp = Mp
 		self.inc = inc
 		self.ecc = ecc
 		self.w = w
@@ -127,7 +128,7 @@ class GetTarget(object):
 	
 	def __init__(self,ADDITIONAL=['pl_trueobliq','st_teff','pl_trandur','pl_orbeccen',
 								'pl_imppar','st_vsin','pl_orbsmax','pl_radj','st_rad',
-								'pl_ratror','pl_ratdor','sy_vmag','pl_orbincl']):
+								'pl_ratror','pl_ratdor','sy_vmag','pl_orbincl','pl_bmassj']):
 		self.ADDITIONAL = ADDITIONAL
 		#self.tab = None
 		self.plDict = {}
@@ -405,6 +406,10 @@ class GetTarget(object):
 				target.rp = self.plDict[pl]['pl_ratror']
 			except KeyError:
 				print('Rp/Rs missing.')
+			try:
+				target.Mp = self.plDict[pl]['pl_bmassj']
+			except KeyError:
+				print('Mp (MJ) missing.')
 			try:
 				target.a = self.plDict[pl]['pl_ratdor']
 			except KeyError:

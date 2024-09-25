@@ -95,9 +95,18 @@ def dual_half_circle(center, radius, angle=0, ax=None, colors=('lightyellow','k'
 	
 	return [w1, w2, c]
 
-def transit_plots(time,fix_target,observatory,path,target,
-			   full_transit=True,night=True,plot_moon=True,moon_phase=True,
-			   verbose=False):
+def transit_plots(
+				time,
+				fix_target,
+				observatory,
+				path,
+				target,
+				full_transit=True,
+				night=True,
+				plot_moon=True,
+				moon_phase=True,
+				verbose=False
+				):
 	'''
 
 
@@ -145,7 +154,7 @@ def transit_plots(time,fix_target,observatory,path,target,
 	plot_altitude(fix_target, observatory, mid, ax=ax, style_kwargs=full_back)
 	full = {'linewidth' : 3.5, 'color' : 'C1', 'zorder' : 8}
 	kk = plot_altitude(fix_target, observatory, mid, ax=ax, style_kwargs=full,
-			   brightness_shading=True, airmass_yaxis=False, min_altitude=3.0)
+					brightness_shading=True, airmass_yaxis=False, min_altitude=3.0)
 
 
 	ax.axhline(y=30.,ls='--',color='C3',alpha=0.6)
@@ -446,11 +455,11 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 			xl = 1.4
 			fa = 1
 		leg = ax.legend(handles, labels,loc="lower right",
-			  handler_map={tuple: AnyObjectHandler()},
-			  fancybox=True,shadow=True,
-			  fontsize=f*FONT,#framealpha=fa,
-			  bbox_to_anchor=(xl,0.15),
-			  ncol=ncol) 
+					handler_map={tuple: AnyObjectHandler()},
+					fancybox=True,shadow=True,
+					fontsize=f*FONT,#framealpha=fa,
+					bbox_to_anchor=(xl,0.15),
+					ncol=ncol) 
 		leg.set_zorder(100)
 		if interact:
 			lined = dict()
@@ -528,7 +537,7 @@ def showtime(observatory,target,times,moon=True,path=None,legend_outside=False,f
 		sun_set_previous = observatory.sun_set_time(Time(time), which='previous')
 		sun_rise_next = observatory.sun_rise_time(Time(time), which='next')
 		sun_rise_previous = observatory.sun_rise_time(Time(time), which='previous')
-	  
+
 
 		if sun_rise_next < sun_set_next:
 			time = (sun_set_previous - 1*u.hour)
@@ -572,13 +581,19 @@ def showtime(observatory,target,times,moon=True,path=None,legend_outside=False,f
 		style = {'linewidth' : 2.0, 'color' : 'C0', 'zorder' : 8, 'linestyle' : '-'}
 		#kk = plot_altitude(target, observatory, time, style_kwargs=style,
 		kk = plot_altitude(target, observatory, time, ax=ax, style_kwargs=style,
-				 airmass_yaxis=False, min_altitude=7.0, brightness_shading=brightness_shading)
+						airmass_yaxis=False, min_altitude=7.0, 
+						brightness_shading=brightness_shading)
 
 		ax.axhline(y=30.,linestyle='--',color='C3',alpha=0.6,zorder=1,linewidth=1.5)
 		if moon:
 			mm = observatory.moon_altaz(time)
-			mstyle = {'linewidth' : 1.5, 'color' : 'k', 'zorder' : 2,
-					  'linestyle' : '--', 'alpha' : 0.6}
+			mstyle = {
+					'linewidth' : 1.5, 
+					'color' : 'k', 
+					'zorder' : 2,
+					'linestyle' : '--', 
+					'alpha' : 0.6
+					}
 			plot_altitude(mm, observatory, time, ax=ax, style_kwargs=mstyle)  
 
 		xl = kk.get_xlabel()
@@ -636,12 +651,12 @@ def showtime(observatory,target,times,moon=True,path=None,legend_outside=False,f
 
 
 def schedulePlot(targets,site,time,
-			  fig = None,
-			  moon_phase = True,
-			  phase = False,
-			  exposures=[],
-			  **kwargs
-			  ):
+				fig = None,
+				moon_phase = True,
+				phase = False,
+				exposures=[],
+				**kwargs
+				):
 
 	if fig == None:
 		site_name = site.name
@@ -763,7 +778,7 @@ def schedulePlot(targets,site,time,
 			
 				bstyle = {'linewidth' : 1.0, 'color' : 'k', 'zorder' : 4}
 				plot_altitude(obs_target, site, time, ax=ax1, style_kwargs=bstyle, min_altitude=3.0,
-							 airmass_yaxis=False, brightness_shading=brightness_shading)
+							airmass_yaxis=False, brightness_shading=brightness_shading)
 				
 				obs_bkw = {'linewidth' : 3.0, 'color' : 'k', 'zorder' : 8, 'linestyle' : '-'}
 				kk = plot_altitude(obs_target, site, obs_window, ax=ax1, style_kwargs=obs_bkw)
@@ -991,11 +1006,11 @@ def skyPlot(targets,observatory,time,moon,path,warn_below_horizon=False):
 	if len(targets)//12:
 		ncol = len(targets)//12
 	leg = axsky.legend(handler_map=my_handler_map,#loc="lower center",
-		  fancybox=True,#shadow=True,
-		  fontsize=0.8*FONT,
-		  #bbox_to_anchor=(.5 + np.cos(angle)/2, .5 + np.sin(angle)/2),
-		  bbox_to_anchor=(1.37,1.0),
-		  ncol=ncol) 
+				fancybox=True,#shadow=True,
+				fontsize=0.8*FONT,
+				#bbox_to_anchor=(.5 + np.cos(angle)/2, .5 + np.sin(angle)/2),
+				bbox_to_anchor=(1.37,1.0),
+				ncol=ncol) 
 	
 
 
