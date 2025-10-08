@@ -32,3 +32,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# MAC OS
+.DS_Store
+src/.DS_Store
+src/scope/.DS_Store

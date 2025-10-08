@@ -266,10 +266,10 @@ class GetTarget(object):
 					
 					self.plDict[pl] = subDict
 
-	def getTargets(self,table='pscomppars',requirements={'sy_vmag' : [0,16]}):
+	def getTargets(self,table='pscomppars',requirements={'sy_vmag' : [0,16]},where=None):
 		self.table = table
 		self.requirements = requirements
-		tab = NasaExoplanetArchive.query_criteria_async(table=self.table)
+		tab = NasaExoplanetArchive.query_criteria_async(table=self.table,where=where)
 		self.keys = tab.fieldnames
 		for pl in tab['pl_name']:
 			subDict = {}

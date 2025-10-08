@@ -112,6 +112,11 @@ def getTransits(targets,telescope,start,end,path,plDict=None,
 	obs_time = Time(start)
 	end_time = Time(end)
 	ext = (end_time - obs_time).value
+
+	ntotal = len(targets)
+	ncrit = 0
+	nleft = 0
+
 	for target in targets:
 		if (target.Vmag < telescope.Vmag):
 		#& (target.b > b_lim) & (target.vsini > vsini_lim):
@@ -125,7 +130,7 @@ def getTransits(targets,telescope,start,end,path,plDict=None,
 					go = False
 					continue
 			if not go: continue
-			
+			ncrit += 1
 			try:
 				nn = int(ext/target.per) + 1
 			except OverflowError:
@@ -178,6 +183,7 @@ def getTransits(targets,telescope,start,end,path,plDict=None,
 					pass
 			
 			if atLeast1: 
+				nleft += 1
 				if plDict:
 					for key in plDict[target.ID].keys():
 						try:
@@ -193,9 +199,11 @@ def getTransits(targets,telescope,start,end,path,plDict=None,
 		with open(path+'obs.log','w') as file:
 			file.write('Telescope: {}.\n'.format(telescope.name))
 			file.write('Observations from {} to {}.\n'.format(obs_time,end_time))
+			file.write('Started with {} planets of which {} fulfilled the criteria:\n'.format(ntotal,ncrit))
 			file.write('Vmag < {}\n'.format(telescope.Vmag))
 			for key in limits.keys():
-				file.write('{} <= {} <= {}\n'.format(limits[key][0],key,limits[key][1]))	
+				file.write('{} <= {} <= {}\n'.format(limits[key][0],key,limits[key][1]))
+			file.write('Of these {} planets, {} were observable.\n'.format(ncrit,nleft))
 
 def getVisPlot(targets,telescope,time,
 	path=False,moon=True,

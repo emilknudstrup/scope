@@ -138,12 +138,12 @@ def transit_plots(time,fix_target,observatory,path,target,
 	ax.text(0.5,1.06,r'${}$'.format(bottom),
 	ha='center',va='center',transform=ax.transAxes,fontsize=FONT)
 
-	transit = {'linewidth' : 3.5, 'zorder' : 10}
+	transit = {'linewidth' : 3.5, 'zorder' : 10, 'markersize' : 0}
 	plot_altitude(fix_target, observatory, ot, ax=ax, style_kwargs=transit)
 
-	full_back = {'linewidth' : 5.0, 'color' : 'k', 'zorder' : 6}
+	full_back = {'linewidth' : 5.0, 'color' : 'k', 'zorder' : 6, 'markersize' : 0}
 	plot_altitude(fix_target, observatory, mid, ax=ax, style_kwargs=full_back)
-	full = {'linewidth' : 3.5, 'color' : 'C1', 'zorder' : 8}
+	full = {'linewidth' : 3.5, 'color' : 'C1', 'zorder' : 8, 'markersize' : 0}
 	kk = plot_altitude(fix_target, observatory, mid, ax=ax, style_kwargs=full,
 			   brightness_shading=True, airmass_yaxis=False, min_altitude=3.0)
 
@@ -328,9 +328,9 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 		handle = (color,ls)
 		#title = r'$\rm {}\ observed\ from\ {}.$'.format(name,site_name)
 
-		bstyle = {'linewidth' : 3.0, 'color' : 'k', 'zorder' : 4}
+		bstyle = {'linewidth' : 3.0, 'color' : 'k', 'zorder' : 4, 'markersize' : 0}
 		plot_altitude(obs_target, observatory, time, ax=ax, style_kwargs=bstyle)
-		style = {'linewidth' : 2.0, 'color' : color, 'zorder' : 8, 'linestyle' : ls}
+		style = {'linewidth' : 2.0, 'color' : color, 'zorder' : 8, 'linestyle' : ls, 'markersize' : 0}
 		kk = plot_altitude(obs_target, observatory, time, ax=ax, style_kwargs=style,
 		airmass_yaxis=False, min_altitude=7.0, brightness_shading=brightness_shading)
 		lines.append((kk.get_lines()[ii*2],kk.get_lines()[ii*2+1],name))
@@ -340,7 +340,7 @@ def visPlot(targets,observatory,time,moon=True,path=False,legend_outside=False,i
 	if moon:
 		mm = observatory.moon_altaz(time)
 		mstyle = {'linewidth' : 1.5, 'color' : 'k', 'zorder' : 2,
-		'linestyle' : '--', 'alpha' : 0.6}
+		'linestyle' : '--', 'alpha' : 0.6, 'markersize' : 0}
 		plot_altitude(mm, observatory, time, ax=ax, style_kwargs=mstyle)  
 
 	ax.axhline(y=30.,linestyle='--',color=colors[3],alpha=0.6,zorder=1,linewidth=1.5)
@@ -566,19 +566,24 @@ def showtime(observatory,target,times,moon=True,path=None,legend_outside=False,f
 		#obs_target = FixedTarget(SkyCoord(ra=target.ra,dec=target.dec),name=name) 
 
 		#title = r'$\rm {}\ observed\ from\ {}.$'.format(name,site_name)
-		bstyle = {'linewidth' : 3.0, 'color' : 'k', 'zorder' : 4}
+		bstyle = {'linewidth' : 3.0, 'color' : 'k', 'zorder' : 4, 'markersize' : 0}
 		plot_altitude(target, observatory, time, ax=ax, style_kwargs=bstyle)
 		#plot_altitude(target, observatory, time, style_kwargs=bstyle)
-		style = {'linewidth' : 2.0, 'color' : 'C0', 'zorder' : 8, 'linestyle' : '-'}
+		style = {'linewidth' : 2.0, 'color' : 'C0', 'zorder' : 8, 'linestyle' : '-', 'markersize' : 0}
 		#kk = plot_altitude(target, observatory, time, style_kwargs=style,
-		kk = plot_altitude(target, observatory, time, ax=ax, style_kwargs=style,
-				 airmass_yaxis=False, min_altitude=7.0, brightness_shading=brightness_shading)
+		kk = plot_altitude(
+					target, observatory, time, ax=ax, style_kwargs=style,
+					airmass_yaxis=False, min_altitude=7.0, 
+					brightness_shading=brightness_shading
+					)
 
 		ax.axhline(y=30.,linestyle='--',color='C3',alpha=0.6,zorder=1,linewidth=1.5)
 		if moon:
 			mm = observatory.moon_altaz(time)
-			mstyle = {'linewidth' : 1.5, 'color' : 'k', 'zorder' : 2,
-					  'linestyle' : '--', 'alpha' : 0.6}
+			mstyle = {
+					'linewidth' : 1.5, 'color' : 'k', 'zorder' : 2,
+					'linestyle' : '--', 'alpha' : 0.6, 'markersize' : 0
+					}
 			plot_altitude(mm, observatory, time, ax=ax, style_kwargs=mstyle)  
 
 		xl = kk.get_xlabel()
@@ -952,9 +957,10 @@ def skyPlot(targets,observatory,time,moon,path,warn_below_horizon=False):
 
 
 	site_name = '\ '.join(site_name.split())
-	title = r'$\rm Observed\ from\ {}.\ Sunset\ UTC\ {}.$'.format(site_name,time[0].isot[:-4])
+	title = r'$\rm Observed\ from\ {}.\ \\ Sunset\ UTC\ {}.$'.format(site_name,time[0].isot[:-4])
 	fig = plt.figure()
-	axsky = fig.add_subplot(projection='polar', facecolor="lightgoldenrodyellow")
+	# axsky = fig.add_subplot(projection='polar', facecolor="lightgoldenrodyellow")
+	axsky = fig.add_subplot(projection='polar', facecolor="#77a1b5")
 	fig.suptitle(title,y=1.00)
 
 	handles = []
@@ -1007,7 +1013,8 @@ def skyPlot(targets,observatory,time,moon,path,warn_below_horizon=False):
 	if interact:
 		lined = dict()
 		#for legline, origlines in zip(leg.get_lines(), lines):
-		for legline, origlines in zip(leg.legendHandles, marks):
+		# for legline, origlines in zip(leg.legendHandles, marks):
+		for legline, origlines in zip(leg.legend_handles, marks):
 			legline.set_picker(0.1)  # 5 pts tolerance
 			#legline.set_pickradius(15)  # 5 pts tolerance
 			lined[legline] = origlines
