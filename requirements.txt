@@ -1,5 +1,5 @@
-numpy
-astropy
+numpy >= 1.20
+astropy >= 5.2
 astroplan
 astroquery
 matplotlib
